@@ -1,4 +1,3 @@
-lib-cov
 *.seed
 *.log
 *.csv
@@ -6,9 +5,10 @@ lib-cov
 *.out
 *.pid
 *.gz
+.idea
 
-pids
-logs
-results
+.idea/
+build/
+node_modules/
 
 npm-debug.log

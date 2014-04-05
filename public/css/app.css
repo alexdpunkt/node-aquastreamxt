@@ -1,0 +1,30 @@
+/**
+ * Some basic styles
+ *
+ * @package node-aquastreamxt
+ * @author Alexander Dick <alex@dick.at>
+ */
+
+.table th {
+	text-align: left;
+}
+
+.flow-sensor {
+
+}
+
+	.flow-sensor fieldset {
+		border: 1px solid #ddd;
+	}
+
+	.flow-sensor legend {
+		display: inline;
+		width: auto;
+		margin: 0 20px;
+		padding: 0 5px;
+		border-bottom: 0;
+	}
+
+	.flow-sensor select {
+		width: auto;
+	}

@@ -1,0 +1,23 @@
+{
+  "server": {
+    "port": 8080
+  },
+  "ui": {
+    "updateInterval": 5000,
+    "chart": {
+      "period": 60
+    }
+  },
+  "aquastreamXt": {
+    "vendorId": "0x0c70",
+    "productId": "0xf0b6",
+    "report": {
+      "pumpDataTransfer": 4,
+      "settings": 6
+    },
+    "flowSensor": {
+      "impulsesPerLiter": "169",
+      "measuringImpulses": "8"
+    }
+  }
+}

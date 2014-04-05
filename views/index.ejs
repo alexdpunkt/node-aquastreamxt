@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Aquastream XT @ <%= deviceInfo.devicePath %></title>
+		<link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="/css/app.css"/>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<header class="page-header">
+					<h1>Aquastream XT @ <%= deviceInfo.devicePath %></h1>
+				</header>
+			</div>
+			<div class="row">
+				<div class="col-md-2">
+					<img src="/images/pump.jpg" class="img-responsive" alt="Aquastream" />
+				</div>
+				<div class="col-md-3">
+					<div id="pump-info"></div>
+				</div>
+				<div class="col-md-3">
+					<div id="pump-data"></div>
+				</div>
+				<div class="col-md-4">
+					<div id="pump-settings"></div>
+					<% if(pumpSettings.i2c.settingAquabusEnable == 0) { %>
+					<form role="form" class="form-horizontal flow-sensor">
+						<fieldset>
+							<legend>Flow sensor calibration</legend>
+							<div class="form-group">
+								<label for="impulses-per-liter" class="col-sm-5 control-label">Impulses/Liter</label>
+								<div class="col-sm-7">
+									<select id="impulses-per-liter" class="form-control">
+										<% for(var i = 50; i <= 1500; i++) { %>
+											<% if(i == config.aquastreamXt.flowSensor.impulsesPerLiter) { %>
+												<option value="<%= i %>" selected="selected"><%= i %></option>
+											<% } else { %>
+												<option value="<%= i %>"><%= i %></option>
+											<% } %>
+										<% } %>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="measuring-impulses" class="col-sm-5 control-label">Measuring Impulses</label>
+								<div class="col-sm-7">
+									<select id="measuring-impulses" class="form-control">
+										<% for(var i = 4; i <= 64; i++) { %>
+											<% if(i == config.aquastreamXt.flowSensor.measuringImpulses) { %>
+												<option value="<%= i %>" selected="selected"><%= i %></option>
+											<% } else { %>
+												<option value="<%= i %>"><%= i %></option>
+											<% } %>
+										<% } %>
+									</select>
+								</div>
+							</div>
+						</fieldset>
+					</form>
+					<% } %>
+				</div>
+			</div>
+			<div class="row">
+				<div id="chart"></div>
+			</div>
+		</div>
+		<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+		<script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script type="text/javascript" src="//code.highcharts.com/highcharts.js"></script>
+		<script type="text/javascript" src="//code.highcharts.com/modules/exporting.js"></script>
+		<script type="text/javascript" src="//builds.handlebarsjs.com.s3.amazonaws.com/handlebars.min-latest.js"></script>
+		<script type="text/javascript" src="/js/helpers.js"></script>
+		<script type="text/javascript">
+			var config			= <%- JSON.stringify(config) %>;
+			var pumpSettings	= <%- JSON.stringify(pumpSettings) %>;
+			var pumpData		= <%- JSON.stringify(pumpData) %>;
+			var deviceInfo		= <%- JSON.stringify(deviceInfo) %>;
+		</script>
+		<script type="text/javascript" src="/js/frontend.js"></script>
+	</body>
+</html>

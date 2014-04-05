@@ -1,0 +1,285 @@
+jQuery(function() {
+
+	/**
+	 * Create controls
+	 */
+	var pumpSettingsContainer   = document.getElementById('pump-settings'),
+		pumpSettingsForm        = Helper.addForm(pumpSettingsContainer);
+
+		Helper.addEventListener(pumpSettingsForm, 'submit', function(evt) {
+
+			var newSettings = jQuery(this).serializeObject();
+			socket.emit('getSettings', function(currentSettings) {
+				jQuery.extend(true, currentSettings, newSettings);
+				console.log(currentSettings);
+				socket.emit('setSettings', currentSettings);
+			});
+
+			evt.preventDefault();
+			return false;
+
+		});
+
+		var pumpSettingsFieldset            = Helper.addFieldset(pumpSettingsForm),
+			pumpSettingsLegend              = Helper.addLegend('Pumpen & Durchfluss Einstellungen', pumpSettingsFieldset),
+
+			pumpSettingsPumpModeFieldset    = Helper.addFieldset(pumpSettingsFieldset),
+			pumpSettingsPumpModeLegend      = Helper.addLegend('Frequenzeinstellung', pumpSettingsPumpModeFieldset),
+			pumpSettingsPumpModeRow         = Helper.addFieldRow(pumpSettingsPumpModeFieldset);
+
+            // Pump mode
+			var pumpSettingsPumpMode        = Helper.createElement(
+				'select',
+				null, {
+					name: 'pumpMode[autoPumpMaxFrequency]'
+				}, pumpSettingsPumpModeRow
+			);
+
+                Helper.createElement('option', 'manuell', { value: 0 }, pumpSettingsPumpMode);
+
+                if(pumpSettings.pumpMode.autoPumpMaxFrequency == 1)
+                    Helper.createElement('option', 'automatisch', {	value: 1, selected: true },	pumpSettingsPumpMode);
+                else
+                    Helper.createElement('option', 'automatisch', {	value: 1 },	pumpSettingsPumpMode);
+
+            // Pump frequency
+            var pumpSettingsFrequency = Helper.createElement(
+                'select',
+                null, {
+                    name: 'frequency[pump][current]'
+                }, pumpSettingsPumpModeRow
+            );
+
+                var minFrequency        = pumpSettings.frequency.pump.min || 60;
+                var maxFrequency        = pumpSettings.frequency.pump.max || 90;
+                var currentFrequency    = pumpSettings.frequency.pump.current;
+                var i;
+                for(i = minFrequency; i <= maxFrequency; i++) {
+
+                    var attrs = { value: i };
+
+                    if(currentFrequency == i)
+                        attrs.selected = true;
+
+                    Helper.createElement('option', Helper.format.frequency(i), attrs, pumpSettingsFrequency);
+
+                };
+
+            Helper.addEventListener(pumpSettingsPumpMode, 'change', function() {
+                pumpSettingsFrequency.style.display = (this.value == 0) ? 'inline' : 'none';
+            });
+            if(pumpSettings.pumpMode.autoPumpMaxFrequency == 1) {
+                pumpSettingsFrequency.style.display = 'none';
+            }
+
+
+
+/*
+	pumpMode->Set(String::NewSymbol("deaeration"), Number::New(report->pumpMode_deaeration));
+
+	pumpMode->Set(String::NewSymbol("deaerationModeSensor"), Number::New(report->pumpMode_deaerationModeSens));
+	pumpMode->Set(String::NewSymbol("resetPumpMaxFrequency"), Number::New(report->pumpMode_resetPumpMaxFreq));
+	pumpMode->Set(String::NewSymbol("i2cControl"), Number::New(report->pumpMode_i2cControl));
+	pumpMode->Set(String::NewSymbol("minFrequencyForce"), Number::New(report->pumpMode_minFreqForce));
+	pumpMode->Set(String::NewSymbol("pumpModeB"), Number::New(report->pumpModeB));
+
+	settings->Set(String::NewSymbol("pumpMode"), Local<Object>::New(pumpMode));
+	*/
+
+	// Frequenzeinstellung -> Manuell | automatisch
+			// if manuell, dann:
+
+				// 1. mindestfrequenzvorgabe in hz
+				// 2. maximalfrequenz in hz
+				// 3. manuelle frequenzvorgabe in hz
+
+			// Setze maximale pumpenfrequenz zurück
+			// Setze Silent Mode
+
+
+
+			Helper.createElement('button', 'speichern', { type: 'submit' }, pumpSettingsFieldset);
+
+
+	var pumpDataContainer       = document.getElementById('pump-data'),
+		pumpDataFieldset        = Helper.addFieldset(pumpDataContainer),
+		pumpDataLegend          = Helper.addLegend('Pumpendaten', pumpDataFieldset),
+		pumpDataCurrentRow      = Helper.addFieldRow(pumpDataFieldset),
+		pumpDataFrequencyRow    = Helper.addFieldRow(pumpDataFieldset),
+		pumpDataFrequencyMaxRow = Helper.addFieldRow(pumpDataFieldset),
+		pumpDataPowerRow        = Helper.addFieldRow(pumpDataFieldset),
+		pumpDataVoltageRow      = Helper.addFieldRow(pumpDataFieldset);
+
+		Helper.addLabel('Stromaufnahme der Pumpe', pumpDataCurrentRow);
+		var pumpDataCurrent = Helper.addSpan(pumpDataCurrentRow);
+
+		Helper.addLabel('Aktuelle Pumpenfrequenz', pumpDataFrequencyRow);
+		var pumpDataFrequency = Helper.addSpan( pumpDataFrequencyRow);
+
+		Helper.addLabel('Ermittelte Maximalfrequenz', pumpDataFrequencyMaxRow);
+		var pumpDataFrequencyMax = Helper.addSpan(
+			Helper.format.frequency(pumpSettings.frequency.pump.max),
+			pumpDataFrequencyMaxRow
+		);
+
+		Helper.addLabel('Leistung der Pumpe', pumpDataPowerRow);
+		var pumpDataPower = Helper.addSpan(pumpDataPowerRow);
+
+		Helper.addLabel('Spannung der Pumpe', pumpDataVoltageRow);
+		var pumpDataVoltage = Helper.addSpan(pumpDataVoltageRow);
+
+
+	/**
+	 * Create charts
+	 */
+	Highcharts.setOptions({
+		global: {
+			useUTC: false
+		}
+	});
+
+	var chart = new Highcharts.Chart({
+		chart: {
+			renderTo: 'waterTemperature',
+			type: 'area',
+			marginRight: 10
+		},
+		title: {
+			text: ''
+		},
+		xAxis: {
+			type: 'datetime',
+			tickPixelInterval: 200,
+			title: {
+				text: 'Zeit'
+			}
+		},
+		yAxis: {
+			title: {
+				text: ''
+			}
+		},
+		tooltip: {
+			formatter: function() {
+				return '<b>'+ this.series.name +'</b><br/>'+
+					Highcharts.dateFormat('%d.%m.%Y %H:%M:%S', this.x) +'<br/>'+
+					Highcharts.numberFormat(this.y, 1);
+			}
+		},
+		legend: {
+			enabled: true
+		},
+		exporting: {
+			enabled: false
+		},
+		plotOptions: {
+			area: {
+				lineWidth : 1,
+				marker: {
+					enabled: false,
+					symbol: 'circle',
+					radius: 2,
+					states: {
+						hover: {
+							enabled: true
+						}
+					}
+				}
+			}
+		},
+
+		series: [
+			{
+				name: 'Flow',
+				type: 'area',
+				data: [{x: new Date().getTime(), y: 0}],
+				color: '#b3c58d',
+				fillColor : {
+					linearGradient : [0, 0, 0, 300],
+					stops : [
+						[0, 'rgba(137,165,78,.5)'],
+						[1, 'rgba(137,165,78,1)']
+					]
+				}
+			},/*{
+			 name: 'Pump Temperature',
+			 type: 'area',
+			 data: [{x: new Date().getTime(), y: 0}],
+			 color: '#aa6854',
+			 fillColor : {
+			 linearGradient : [0, 0, 0, 300],
+			 stops : [
+			 [0, 'rgba(170,70,67,.5)'],
+			 [1, 'rgba(170,70,67,1)']
+			 ]
+			 }
+			 },*/{
+				name: 'Water Temperature',
+				type: 'area',
+				data: [{x: new Date().getTime(), y: 0}],
+				color: '#948ddf',
+				fillColor : {
+					linearGradient: [0, 0, 0, 300],
+					stops : [
+						[0, 'rgba(146,146,235,.5)'],
+						[1, 'rgba(146,146,235,1)']
+					]
+				}
+			}
+		]
+	});
+
+	/**
+	 * Update charts and controls periodically
+	 */
+	var socket              = io.connect();
+	var maxPointsPerSeries  = (60 / (config.ui.updateInterval / 1000)) * 60;
+	var numSeries           = chart.series.length;
+
+	var updateUi            = function(data) {
+
+		/******************************************************
+		 * Update charts
+		 */
+		// remove points older than 60 minutes
+		var numPoints = chart.series[0].points.length - 1;
+		if(numPoints == maxPointsPerSeries) {
+			for(var i = 0; i < numSeries; i++) {
+				chart.series[i].points.shift().remove();
+			}
+		}
+
+		// Add new points
+
+		var time        = new Date().getTime();
+
+		var flow        = Helper.round(data.current.flow, 1);
+		var flowPlot    = [time, flow];
+		chart.series[0].addPoint(flowPlot, true, false);
+
+		/*var pumpTemp 		= data.current.temperature.pump;
+		 var pumpTempPlot  	= [new Date().getTime(), pumpTemp];
+		 chart.series[1].addPoint(pumpTempPlot, true, false);*/
+
+		var waterTemp       = Helper.round(data.current.temperature.water, 1);
+		var waterTempPlot   = [time, waterTemp];
+		//chart.series[2].addPoint(waterTempPlot, true, false);
+		chart.series[1].addPoint(waterTempPlot, true, false);
+
+		/******************************************************
+		 * Update controls
+		 */
+		pumpDataCurrent.innerHTML   = Helper.format.current(data.current.pumpCurrent);
+		pumpDataFrequency.innerHTML = Helper.format.frequency(data.current.frequency);
+		pumpDataPower.innerHTML     = Helper.format.power(data.current.pumpPower);
+		pumpDataVoltage.innerHTML   = Helper.format.voltage(data.current.voltage);
+
+	};
+
+	// Initial update with the current pumpData assigned in layout.jade
+	updateUi(pumpData);
+
+	// Periodical update through server
+	socket.on('getData', updateUi);
+
+});
