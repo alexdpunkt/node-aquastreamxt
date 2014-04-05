@@ -9,10 +9,10 @@ conf            = require('nconf');
 fs              = require('fs');
 
 var express     = require('express'),
-	http        = require('http'),
-	socketio    = require('socket.io'),
-	routes      = require('./routes'),
-	path        = require('path');
+    http        = require('http'),
+    socketio    = require('socket.io'),
+    routes      = require('./routes'),
+    path        = require('path');
 
 // Load config file
 conf.file({file: 'config.json'});

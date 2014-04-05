@@ -7,7 +7,7 @@
 
 var Helper = {
 
-	round: function(number, decimals) {
+	round: function (number, decimals) {
 
 		if (arguments.length == 1)
 			return Math.round(number);
@@ -19,19 +19,19 @@ var Helper = {
 
 	format: {
 
-		current: function(val) {
+		current: function (val) {
 			return parseInt(val) + ' mA';
 		},
 
-		frequency: function(val) {
+		frequency: function (val) {
 			return parseInt(val) + ' Hz';
 		},
 
-		power: function(val) {
+		power: function (val) {
 			return Helper.round(val, 2) + ' W';
 		},
 
-		voltage: function(val) {
+		voltage: function (val) {
 			return Helper.round(val, 2) + ' V';
 		}
 
@@ -39,12 +39,12 @@ var Helper = {
 
 	convert: {
 
-		flow: function(rawFlow, impulsesPerLiter, measuringImpulses) {
-			if(rawFlow >= 600000) {
+		flow: function (rawFlow, impulsesPerLiter, measuringImpulses) {
+			if (rawFlow >= 600000) {
 				return 0;
 			} else {
-				var time    = 46875 * 3600;
-				var cal		= (measuringImpulses / 2) / impulsesPerLiter;
+				var time = 46875 * 3600;
+				var cal = (measuringImpulses / 2) / impulsesPerLiter;
 				return time / (rawFlow / cal);
 			}
 		}
@@ -52,27 +52,27 @@ var Helper = {
 	},
 
 	Handlebars: {
-		round: function(val) {
+		round: function (val) {
 			val = Handlebars.Utils.escapeExpression(val);
 			return Helper.round(val, 2);
 		},
-		join: function(val) {
+		join: function (val) {
 			return val.join(':');
 		},
-		pumpMode: function(mode) {
+		pumpMode: function (mode) {
 
-			if(mode.aquastreamModeUltra)
+			if (mode.aquastreamModeUltra)
 				return 'Ultra';
 
-			if(mode.aquastreamModeAdvanced)
+			if (mode.aquastreamModeAdvanced)
 				return 'Advanced';
 
 			return 'Standard';
 		},
-		frequencyMode: function(pumpMode) {
+		frequencyMode: function (pumpMode) {
 			return pumpMode.autoPumpMaxFrequency ? 'auto' : 'manual';
 		},
-		deaerationMode: function(pumpMode) {
+		deaerationMode: function (pumpMode) {
 			return pumpMode.deaeration ? 'on' : 'off';
 		}
 	}

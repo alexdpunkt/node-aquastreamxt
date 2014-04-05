@@ -4,7 +4,7 @@ Aquastream XT application for Linux
 ## Introduction
 
 This is a Node.js application for displaying Aquastream XT pump information, such as water temperature, flow, current frequency, etc.
-It is built on top of [node-aquastreamxt-api](node-aquastreamxt-api), which is a native Node.js addon I wrote for communicating with the hardware.
+It is built on top of [node-aquastreamxt-api](https://github.com/adick/node-aquastreamxt-api), which is a native Node.js addon I wrote for communicating with the hardware.
 
 Currently it is *read-only*, so you can't change any settings yet. I still have some problems with writing data to the device but this is planned to be supported some day.
 
@@ -31,7 +31,7 @@ This guide is for Debian based distros (Debian, Ubuntu. LMDE/Mint, ...) so you m
 
     $ npm install
 
-This installs all required dependencies (including [node-aquastreamxt-api](node-aquastreamxt-api)).
+This installs all required dependencies (including [node-aquastreamxt-api](https://github.com/adick/node-aquastreamxt-api)).
 
 
 ### Done!
@@ -41,7 +41,7 @@ Run the app with
 
 and visit [http://localhost:8080](http://localhost:8080) - you should see the interface:
 
-![screenshot](https://github.com/adick/node-aquastreamxt/master/screenshot.png)
+![screenshot](https://raw.githubusercontent.com/adick/node-aquastreamxt/master/screenshot.png)
 
 
 ## Troubleshooting
